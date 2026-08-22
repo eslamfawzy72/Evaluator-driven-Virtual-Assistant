@@ -21,8 +21,9 @@ class Settings:
     chroma_persist_dir: str = os.getenv("CHROMA_PERSIST_DIR", "./chroma_db")
     chroma_collection_name: str = os.getenv("CHROMA_COLLECTION_NAME", "knowledge_base")
 
-    # Teammate 2 will read this for the Generator/Evaluator LLMs
-    anthropic_api_key: str = os.getenv("ANTHROPIC_API_KEY", "")
-
+    # llm service settings
+    LLM_MODEL: str = os.getenv("LLM_MODEL", "Qwen/Qwen3-8B")
+    LLM_TEMPERATURE: float = float(os.getenv("LLM_TEMPERATURE", "0.2"))
+    HF_TOKEN: str = os.getenv("HF_TOKEN", "")
 
 settings = Settings()
