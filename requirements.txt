@@ -1,0 +1,16 @@
+langchain-core
+langchain-community
+langchain-text-splitters
+langchain-chroma
+langchain-huggingface
+sentence-transformers
+pypdf
+docx2txt
+requests
+beautifulsoup4
+wikipedia
+python-pptx
+faster-whisper
+redis
+python-dotenv
+pytest
