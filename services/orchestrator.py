@@ -22,18 +22,24 @@ class QAOrchestrator:
         self.evaluator = EvaluatorAgent()
 
     def run(self, question: str) -> OrchestratorResult:
+        try:
+            context = retrieve(question)
 
-        context = retrieve(question)
+        except Exception as e:
+            raise ValueError(f"Error occurred while retrieving context: {e}")
 
         feedback = None
 
         for iteration in range(1, self.MAX_ITERATIONS + 1):
 
-            answer = self.generator.generate_answer(
-                question=question,
-                context=context,
-                feedback=feedback,
-            )
+            try:
+                answer = self.generator.generate_answer(
+                    question=question,
+                    context=context,
+                    feedback=feedback,
+                )
+            except Exception as e:
+                raise ValueError(f"Error occurred while generating answer: {e}")
 
             evaluation = self.evaluator.evaluate(
                 question=question,

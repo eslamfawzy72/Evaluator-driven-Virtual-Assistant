@@ -14,3 +14,4 @@ faster-whisper
 redis
 python-dotenv
 pytest
+fastapi
