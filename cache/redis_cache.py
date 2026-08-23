@@ -36,29 +36,72 @@ def get_client() -> Optional["redis.Redis"]:
     return _client or None
 
 
-def _retrieval_key(question: str, k: int) -> str:
+KNOWLEDGE_VERSION_KEY = "knowledge_version"
+
+
+def get_knowledge_version() -> str:
+    """Current knowledge-base version tag.
+
+    Every cache key that depends on the ingested knowledge (retrieval
+    results, final answers) folds this in. Bumping it via
+    bump_knowledge_version() -- called whenever new content is ingested --
+    makes every previously-cached entry unreachable under the new version,
+    which is a cheap way to invalidate a whole cache generation at once
+    without tracking or deleting individual keys.
+
+    Fails soft to a stable default ("v0") if Redis is unavailable --
+    caching still works within a single process run, it just won't
+    auto-invalidate across ingestion events without Redis.
+    """
+    client = get_client()
+    if client is None:
+        return "v0"
+    try:
+        version = client.get(KNOWLEDGE_VERSION_KEY)
+        return version or "v0"
+    except Exception as exc:
+        logger.warning("Redis GET knowledge_version failed: %s", exc)
+        return "v0"
+
+
+def bump_knowledge_version() -> None:
+    """Call after successfully ingesting new content."""
+    client = get_client()
+    if client is None:
+        return
+    try:
+        client.incr(KNOWLEDGE_VERSION_KEY)
+    except Exception as exc:
+        logger.warning("Redis INCR knowledge_version failed: %s", exc)
+
+
+def _retrieval_key(question: str, k: int, knowledge_version: str) -> str:
     digest = hashlib.sha256(question.strip().lower().encode("utf-8")).hexdigest()
-    return f"retrieval:{digest}:k{k}"
+    return f"retrieval:{knowledge_version}:{digest}:k{k}"
 
 
-def get_cached_retrieval(question: str, k: int) -> Optional[List[dict]]:
+def get_cached_retrieval(question: str, k: int, knowledge_version: str) -> Optional[List[dict]]:
     client = get_client()
     if client is None:
         return None
     try:
-        raw = client.get(_retrieval_key(question, k))
+        raw = client.get(_retrieval_key(question, k, knowledge_version))
         return json.loads(raw) if raw else None
     except Exception as exc:
         logger.warning("Redis GET failed: %s", exc)
         return None
 
 
-def set_cached_retrieval(question: str, k: int, context: List[dict]) -> None:
+def set_cached_retrieval(question: str, k: int, knowledge_version: str, context: List[dict]) -> None:
     client = get_client()
     if client is None:
         return
     try:
-        client.setex(_retrieval_key(question, k), RETRIEVAL_TTL_SECONDS, json.dumps(context))
+        client.set(
+            _retrieval_key(question, k, knowledge_version),
+            json.dumps(context),
+            ex=RETRIEVAL_TTL_SECONDS,
+        )
     except Exception as exc:
         logger.warning("Redis SET failed: %s", exc)
         
@@ -95,10 +138,10 @@ def set_cached_answer(question: str, knowledge_version: str, result: dict) -> No
         return
 
     try:
-        client.setex(
+        client.set(
             _qa_key(question, knowledge_version),
-            QA_TTL_SECONDS,
             json.dumps(result),
+            ex=QA_TTL_SECONDS,
         )
 
     except Exception as exc:

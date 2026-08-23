@@ -10,7 +10,7 @@ Teammate 2's Generator/Evaluator consume directly:
 import logging
 from typing import Dict, List
 
-from cache.redis_cache import get_cached_retrieval, set_cached_retrieval
+from cache.redis_cache import get_cached_retrieval, get_knowledge_version, set_cached_retrieval
 from rag.vector_store import similarity_search
 
 logger = logging.getLogger(__name__)
@@ -28,7 +28,9 @@ def retrieve(question: str, k: int = 4) -> List[Dict[str, str]]:
         logger.warning("retrieve() called with empty question")
         return []
 
-    cached = get_cached_retrieval(question, k)
+    knowledge_version = get_knowledge_version()
+
+    cached = get_cached_retrieval(question, k, knowledge_version)
     if cached is not None:
         logger.info("Cache HIT for retrieval: %r", question)
         return cached
@@ -45,5 +47,5 @@ def retrieve(question: str, k: int = 4) -> List[Dict[str, str]]:
         for doc in docs
     ]
 
-    set_cached_retrieval(question, k, context)
+    set_cached_retrieval(question, k, knowledge_version, context)
     return context

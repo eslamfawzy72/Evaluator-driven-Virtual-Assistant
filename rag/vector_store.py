@@ -5,6 +5,7 @@ from typing import List
 from langchain_chroma import Chroma
 from langchain_core.documents import Document
 
+from cache.redis_cache import bump_knowledge_version
 from config.settings import settings
 from rag.embeddings import get_embedding_function
 
@@ -39,6 +40,10 @@ def add_documents(chunks: List[Document]) -> None:
     store = get_vector_store()
     store.add_documents(chunks)
     logger.info("Stored %d chunk(s) in Chroma collection '%s'", len(chunks), COLLECTION_NAME)
+
+    # The knowledge base just changed -- invalidate every retrieval/answer
+    # cached under the previous version.
+    bump_knowledge_version()
 
 
 def similarity_search(question: str, k: int = 4) -> List[Document]:
