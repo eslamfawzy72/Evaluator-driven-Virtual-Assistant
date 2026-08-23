@@ -12,7 +12,7 @@ class LLMService:
             repo_id=settings.LLM_MODEL,
             huggingfacehub_api_token=settings.HF_TOKEN,
             temperature=settings.LLM_TEMPERATURE,
-             max_new_tokens=512,
+            max_new_tokens=512,
         )
 
         self.llm: BaseChatModel = ChatHuggingFace(

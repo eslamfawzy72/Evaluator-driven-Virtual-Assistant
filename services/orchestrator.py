@@ -3,7 +3,7 @@ from dataclasses import dataclass
 from rag.retriever import retrieve
 from services.generator_agent import GeneratorAgent
 from services.evaluator_agent import EvaluatorAgent
-
+from cache.redis_cache import get_cached_answer,set_cached_answer
 
 @dataclass
 class OrchestratorResult:
@@ -16,12 +16,25 @@ class OrchestratorResult:
 class QAOrchestrator:
 
     MAX_ITERATIONS = 4
+    knowledge_version = "v1.0"  # Update this version when the knowledge base changes
 
     def __init__(self):
         self.generator = GeneratorAgent()
         self.evaluator = EvaluatorAgent()
 
     def run(self, question: str) -> OrchestratorResult:
+        
+          # 1. QA cache
+        cached = get_cached_answer(question,self.knowledge_version)
+
+        if cached:
+            return OrchestratorResult(
+                answer=cached["answer"],
+                decision=cached["decision"],
+                iterations=cached["iterations"],
+                feedback=cached.get("feedback"),
+            )
+
         try:
             context = retrieve(question)
 
@@ -54,12 +67,23 @@ class QAOrchestrator:
                     answer=answer,
                 )
 
-                return OrchestratorResult(
+                result= OrchestratorResult(
                     answer=answer,
                     decision="accept",
                     iterations=iteration,
                     feedback=evaluation.feedback,
                 )
+                set_cached_answer(
+                question,
+                self.knowledge_version,
+                {
+                    "answer": result.answer,
+                    "decision": result.decision,
+                    "iterations": result.iterations,
+                    "feedback": result.feedback,
+                },
+            )
+                return result
 
             feedback = evaluation.feedback
 

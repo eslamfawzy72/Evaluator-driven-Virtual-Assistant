@@ -61,3 +61,45 @@ def set_cached_retrieval(question: str, k: int, context: List[dict]) -> None:
         client.setex(_retrieval_key(question, k), RETRIEVAL_TTL_SECONDS, json.dumps(context))
     except Exception as exc:
         logger.warning("Redis SET failed: %s", exc)
+        
+QA_TTL_SECONDS = 60 * 60  # 1 hour
+
+
+def _qa_key(question: str, knowledge_version: str) -> str:
+    digest = hashlib.sha256(
+        question.strip().lower().encode("utf-8")
+    ).hexdigest()
+
+    return f"qa:{knowledge_version}:{digest}"
+
+
+def get_cached_answer(question: str, knowledge_version: str) -> Optional[dict]:
+    client = get_client()
+
+    if client is None:
+        return None
+
+    try:
+        raw = client.get(_qa_key(question, knowledge_version))
+        return json.loads(raw) if raw else None
+
+    except Exception as exc:
+        logger.warning("Redis QA GET failed: %s", exc)
+        return None
+
+
+def set_cached_answer(question: str, knowledge_version: str, result: dict) -> None:
+    client = get_client()
+
+    if client is None:
+        return
+
+    try:
+        client.setex(
+            _qa_key(question, knowledge_version),
+            QA_TTL_SECONDS,
+            json.dumps(result),
+        )
+
+    except Exception as exc:
+        logger.warning("Redis QA SET failed: %s", exc)
