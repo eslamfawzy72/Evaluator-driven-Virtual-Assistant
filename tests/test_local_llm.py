@@ -6,7 +6,7 @@ def main():
 
     response = llm.chat(
         system_message="You are a helpful assistant.",
-        user_message="Say hello and explain that you are running locally.",
+        user_message="Say hello and tell me that you are running locally.",
     )
 
     print("\n========== RESPONSE ==========")
