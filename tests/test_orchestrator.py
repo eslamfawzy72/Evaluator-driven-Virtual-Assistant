@@ -4,33 +4,29 @@ from services.orchestrator import QAOrchestrator
 def main():
     orchestrator = QAOrchestrator()
 
-    question = "What is Natural Language Processing?"
+    question = "What is natural language processing?"
+
+    print("\n" + "=" * 60)
+    print("FIRST REQUEST")
+    print("=" * 60)
 
     result = orchestrator.run(question)
 
-    print("\n=== ORCHESTRATOR RESULT ===")
-
+    print(f"Answer: {result.answer}")
     print(f"Decision: {result.decision}")
     print(f"Iterations: {result.iterations}")
+    print(f"Feedback: {result.feedback}")
 
-    print("\n=== FINAL ANSWER ===")
-    print(result.answer)
+    print("\n" + "=" * 60)
+    print("SECOND REQUEST")
+    print("=" * 60)
 
-    print("\n=== LAST EVALUATOR FEEDBACK ===")
-    print(result.feedback)
+    result = orchestrator.run(question)
 
-    print("\n=== GENERATOR ATTEMPTS ===")
-
-    for attempt in orchestrator.generator.memory.get_attempts():
-        print(f"\nIteration: {attempt.iteration}")
-        print(f"Answer: {attempt.answer}")
-
-    print("\n=== EVALUATOR HISTORY ===")
-
-    for evaluation in orchestrator.evaluator.memory.get_evaluations():
-        print(f"\nIteration: {evaluation.iteration}")
-        print(f"Decision: {evaluation.decision}")
-        print(f"Feedback: {evaluation.feedback}")
+    print(f"Answer: {result.answer}")
+    print(f"Decision: {result.decision}")
+    print(f"Iterations: {result.iterations}")
+    print(f"Feedback: {result.feedback}")
 
 
 if __name__ == "__main__":
