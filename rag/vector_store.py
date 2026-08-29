@@ -1,6 +1,6 @@
 """Chroma-backed vector store: persistence, storage, and similarity search."""
 import logging
-from typing import List
+from typing import List, Optional
 
 from langchain_chroma import Chroma
 from langchain_core.documents import Document
@@ -46,7 +46,26 @@ def add_documents(chunks: List[Document]) -> None:
     bump_knowledge_version()
 
 
-def similarity_search(question: str, k: int = 4) -> List[Document]:
-    """Return the k most similar chunks to the question."""
+def similarity_search(
+    question: str, k: int = 4, filter: Optional[dict] = None
+) -> List[Document]:
+    """Return the k most similar chunks to the question.
+
+    `filter` maps directly to Chroma's `where` clause (e.g.
+    {"source": "paper.pdf"} or {"$and": [...]} for multiple conditions) --
+    used by the Retriever Agent's Metadata Filter tool.
+    """
     store = get_vector_store()
-    return store.similarity_search(question, k=k)
+    return store.similarity_search(question, k=k, filter=filter)
+
+
+def get_all_documents() -> List[Document]:
+    """Return every chunk currently stored, for tools that need the full
+    corpus rather than a similarity search (e.g. building a BM25 index for
+    keyword search)."""
+    store = get_vector_store()
+    raw = store.get(include=["documents", "metadatas"])
+    return [
+        Document(page_content=content, metadata=metadata or {})
+        for content, metadata in zip(raw["documents"], raw["metadatas"])
+    ]
