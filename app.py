@@ -9,6 +9,7 @@ from fastapi import FastAPI
 
 from api.ingestion_routes import router as ingestion_router
 from api.qa_router import router as qa_router
+from api.retriever_router import router as retriever_router
 from utils.logging_config import configure_logging
 
 configure_logging()
@@ -20,6 +21,7 @@ app = FastAPI(
 
 app.include_router(ingestion_router)
 app.include_router(qa_router)
+app.include_router(retriever_router)
 
 @app.get("/health")
 def health_check():
