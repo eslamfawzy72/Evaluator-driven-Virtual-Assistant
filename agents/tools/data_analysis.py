@@ -1,9 +1,12 @@
 import json
+from langchain_core.tools import StructuredTool, tool
 
 from agents.prompts.data_analysis_prompt import DataAnalysisPrompt
 from schemas.calculation_schema import Calculation, CalculationPlan
+from schemas.comparison_schema import DocumentComparison
 from schemas.data_analysis_schema import DataAnalysisInput
 from schemas.data_analysis_schema import DataAnalysisResult
+from schemas.retriever_schema import Evidence
 from schemas.table_extractor_schema import ExtractedTable
 from services.local_llm_service import LocalLLMService
 from agents.prompts.calculation_plan_prompt import CalculationPlanPrompt
@@ -221,6 +224,10 @@ class DataAnalysisTool:
         )
         
     def analyze(self, input_data: DataAnalysisInput) -> DataAnalysisResult:
+        """
+        Analyze the provided evidence and generate a report.
+        """
+        
 
         evidence_text = self._format_evidence(
             input_data.evidences
@@ -274,8 +281,8 @@ class DataAnalysisTool:
     def _format_evidence(evidences) -> str:
         return "\n\n".join(
             f"""
-Document: {evidence.document_name}
-Page: {evidence.page_number}
+Document: {evidence.source}
+Page: {evidence.page}
 Evidence:
 {evidence.content}
 """.strip()
@@ -303,3 +310,32 @@ Evidence:
             results.append(result)
 
         return "\n".join(results)
+    
+data_analysis = DataAnalysisTool()
+
+
+def _analyze(
+    query: str,
+    evidences: list[Evidence],
+    extracted_table: ExtractedTable | None = None,
+    document_comparison: DocumentComparison | None = None,
+) -> DataAnalysisResult:
+
+    input_data = DataAnalysisInput(
+        query=query,
+        evidences=evidences,
+        extracted_table=extracted_table,
+        document_comparison=document_comparison,
+    )
+
+    return data_analysis.analyze(input_data)
+
+
+analyze = StructuredTool.from_function(
+    func=_analyze,
+    name="analyze",
+    description=(
+        "Analyze document evidence. Use this tool when numerical, "
+        "tabular, or comparative analysis is required."
+    ),
+)

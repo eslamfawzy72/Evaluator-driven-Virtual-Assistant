@@ -10,6 +10,9 @@ class LocalLLMService:
             model="qwen2.5:3b",
             temperature=settings.LLM_TEMPERATURE,
         )
+    
+    def get_llm(self):
+        return self.llm
 
     def chat(self, system_message: str, user_message: str) -> str:
         response = self.llm.invoke([

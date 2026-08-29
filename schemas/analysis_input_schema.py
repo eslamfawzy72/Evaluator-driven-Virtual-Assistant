@@ -1,5 +1,5 @@
 from pydantic import BaseModel, Field
-from schemas.evidence_schema import Evidence
+from schemas.retriever_schema import Evidence
 
 class AnalysisInput(BaseModel):
     question: str = Field(description="The user's original question")

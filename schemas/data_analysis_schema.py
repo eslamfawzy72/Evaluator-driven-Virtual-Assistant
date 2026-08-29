@@ -1,6 +1,6 @@
 from pydantic import BaseModel
 
-from schemas.evidence_schema import Evidence
+from schemas.retriever_schema import Evidence
 from schemas.table_extractor_schema import ExtractedTable
 from schemas.comparison_schema import DocumentComparison
 

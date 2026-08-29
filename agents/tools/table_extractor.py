@@ -1,7 +1,8 @@
 import json
+from langchain_core.tools import StructuredTool
 
 from agents.prompts.table_extractor_prompt import TableExtractorPrompt
-from schemas.evidence_schema import Evidence
+from schemas.retriever_schema import Evidence
 from schemas.table_extractor_schema import ExtractedTable
 from services.local_llm_service import LocalLLMService
 
@@ -10,8 +11,10 @@ class TableExtractor:
     def __init__(self):
         self.llm_service = LocalLLMService()
         self.prompt = TableExtractorPrompt()
-
     def extract_table(self, evidences: list[Evidence]) -> ExtractedTable:
+        """
+        Extract a structured table from the provided document evidence.
+        """
         evidence_text = self._format_evidence(evidences)
         messages = self.prompt.TABLE_EXTRACTION_PROMPT.format_messages(
         evidence=evidence_text
@@ -41,11 +44,20 @@ class TableExtractor:
     def _format_evidence(evidences: list[Evidence]) -> str:
         return "\n\n".join(
             f"""
-Evidence ID: {evidence.id}
-Document: {evidence.document_name}
-Page: {evidence.page_number}
+Document: {evidence.source}
+Page: {evidence.page}
 Content:
 {evidence.content}
 """.strip()
             for evidence in evidences
         )
+table_extractor = TableExtractor()
+
+extract_table = StructuredTool.from_function(
+    func=table_extractor.extract_table,
+    name="extract_table",
+    description=(
+        "Extract a structured table from the provided document evidence. "
+        "The evidences argument must be a list of evidence objects."
+    ),
+)

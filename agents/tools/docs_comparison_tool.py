@@ -1,8 +1,9 @@
 import json
+from langchain_core.tools import StructuredTool
 
 from agents.prompts.docs_comparison_prompt import DocumentComparisonPrompt
 from schemas.comparison_schema import DocumentComparison
-from schemas.evidence_schema import Evidence
+from schemas.retriever_schema import Evidence
 from services.local_llm_service import LocalLLMService
 
 
@@ -11,11 +12,13 @@ class DocumentComparisonTool:
     def __init__(self):
         self.llm_service = LocalLLMService()
         self.prompt = DocumentComparisonPrompt()
-
     def compare_documents(
         self,
         evidences: list[Evidence],
     ) -> DocumentComparison:
+        """
+        Compare multiple documents and extract their differences.
+        """
         document_names = {
         evidence.document_name
         for evidence in evidences
@@ -60,3 +63,10 @@ Evidence:
 """.strip()
             for evidence in evidences
         )
+document_comparison = DocumentComparisonTool()
+
+compare_documents = StructuredTool.from_function(
+    func=document_comparison.compare_documents,
+    name="compare_documents",
+    description="Compare multiple documents and extract their differences.",
+)
