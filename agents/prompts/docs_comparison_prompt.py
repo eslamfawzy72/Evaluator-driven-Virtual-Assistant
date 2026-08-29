@@ -25,6 +25,12 @@ Then identify:
 - similarities between the documents
 - differences between the documents
 
+For advantages and disadvantages:
+- Always return a JSON array.
+- If there are no advantages, return [].
+- If there are no disadvantages, return [].
+- Never return null.
+
 Rules:
 - Use only information explicitly supported by the evidence.
 - Do not invent, infer, or calculate information.

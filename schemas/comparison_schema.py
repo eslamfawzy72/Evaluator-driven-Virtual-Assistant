@@ -1,12 +1,12 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 
 class DocumentAnalysis(BaseModel):
     document_name: str
     methodology: str | None
     results: str | None
-    advantages: list[str]
-    disadvantages: list[str]
+    advantages: list[str] = Field(default_factory=list)
+    disadvantages: list[str] = Field(default_factory=list)
     conclusions: str | None
 
 

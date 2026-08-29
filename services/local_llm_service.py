@@ -5,9 +5,9 @@ from config.settings import settings
 
 class LocalLLMService:
 
-    def __init__(self):
+    def __init__(self, model: str = "qwen2.5:3b"):
         self.llm = ChatOllama(
-            model="qwen2.5:3b",
+            model=model,
             temperature=settings.LLM_TEMPERATURE,
         )
     

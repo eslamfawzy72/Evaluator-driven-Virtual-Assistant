@@ -6,23 +6,23 @@ def main():
 
     evidences = [
         Evidence(
-            source="paper.pdf",
+            source="paper_a.pdf",
             page=5,
-            content="""
-    Model       Accuracy    F1
-    BERT        91          89
-    RoBERTa     94          92
-    DistilBERT  89          87
-    """
-        )
+            content="BERT achieved 91% accuracy on the dataset."
+        ),
+        Evidence(
+            source="paper_b.pdf",
+            page=7,
+            content="RoBERTa achieved 94% accuracy on the dataset."
+        ),
     ]
+
     agent = AnalystAgent()
 
     result = agent.analyze(
-        query="What is the difference between BERT and RoBERTa accuracy?",
+        query="Use the Document Comparison tool to compare the evidence from paper_a.pdf and paper_b.pdf",
         evidences=evidences,
     )
-
 
     print("\n========== ANALYST ==========")
     print(result)

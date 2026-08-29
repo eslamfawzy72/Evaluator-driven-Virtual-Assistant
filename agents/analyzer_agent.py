@@ -14,7 +14,7 @@ from agents.prompts.analysis_agent_prompt import AnalystAgentPrompt
 class AnalystAgent:
 
     def __init__(self):
-        self.llm_service = LocalLLMService()
+        self.llm_service = LocalLLMService(model="qwen3:8b")
         self.prompt = AnalystAgentPrompt()
 
         self.tools = [
@@ -47,27 +47,40 @@ class AnalystAgent:
 
         while True:
 
-            response = self.llm.invoke(messages)
+                response = self.llm.invoke(messages)
 
-            messages.append(response)
+                print("\n========== LLM RESPONSE ==========")
+                print("Content:", repr(response.content))
+                print("Tool calls:", response.tool_calls)
+                print("===================================")
 
-            if not response.tool_calls:
-                return response.content
+                messages.append(response)
 
-            for tool_call in response.tool_calls:
+                if not response.tool_calls:
+                    return response.content
 
-                tool = self.tool_map[tool_call["name"]]
+                for tool_call in response.tool_calls:
 
-                result = tool.invoke(
-                    tool_call["args"]
-                )
+                    print("\n========== TOOL CALL ==========")
+                    print("Tool:", tool_call["name"])
+                    print("Arguments:", tool_call["args"])
+                    print("===============================")
 
-                messages.append(
-                    ToolMessage(
-                        content=str(result),
-                        tool_call_id=tool_call["id"],
+                    tool = self.tool_map[tool_call["name"]]
+
+                    result = tool.invoke(
+                        tool_call["args"]
                     )
-                )
 
+                    print("\n========== TOOL RESULT ==========")
+                    print(result)
+                    print("=================================")
 
- 
+                    messages.append(
+                        ToolMessage(
+                            content=str(result),
+                            tool_call_id=tool_call["id"],
+                        )
+                    )
+
+        

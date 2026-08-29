@@ -20,7 +20,7 @@ class DocumentComparisonTool:
         Compare multiple documents and extract their differences.
         """
         document_names = {
-        evidence.document_name
+        evidence.source
         for evidence in evidences
     }
 
@@ -56,8 +56,8 @@ class DocumentComparisonTool:
     def _format_evidence(evidences: list[Evidence]) -> str:
         return "\n\n".join(
             f"""
-Document: {evidence.document_name}
-Page: {evidence.page_number}
+Document: {evidence.source}
+Page: {evidence.page}
 Evidence:
 {evidence.content}
 """.strip()
