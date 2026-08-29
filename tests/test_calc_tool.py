@@ -1,4 +1,4 @@
-from agents.tools.calculator import calculator
+from agents.tools.calculator_tool import calculator
 
 
 # Basic arithmetic
