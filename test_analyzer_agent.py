@@ -1,26 +1,23 @@
 from schemas.retriever_schema import Evidence
 from agents.analyzer_agent import AnalystAgent
+from schemas.table_extractor_schema import ExtractedTable
 
 
 def main():
 
     evidences = [
         Evidence(
-            source="paper_a.pdf",
+            source="paper.pdf",
             page=5,
-            content="BERT achieved 91% accuracy on the dataset."
-        ),
-        Evidence(
-            source="paper_b.pdf",
-            page=7,
-            content="RoBERTa achieved 94% accuracy on the dataset."
-        ),
+            content="The model achieved strong performance on the dataset."
+        )
     ]
+
 
     agent = AnalystAgent()
 
     result = agent.analyze(
-        query="Use the Document Comparison tool to compare the evidence from paper_a.pdf and paper_b.pdf",
+        query="What exact accuracy did the model achieve?",
         evidences=evidences,
     )
 

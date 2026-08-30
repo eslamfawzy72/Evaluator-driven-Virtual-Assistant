@@ -32,9 +32,13 @@ def _retrieve_more(
     already_have: list[Evidence],
 ) -> list[Evidence]:
 
-    return retrieve_more_evidence_tool.retrieve(
+    input_data = RetrieveMoreEvidenceInput(
         follow_up_query=follow_up_query,
         already_have=already_have,
+    )
+
+    return retrieve_more_evidence_tool.retrieve(
+        input_data=input_data,
     )
 
 
