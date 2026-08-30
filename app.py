@@ -7,6 +7,7 @@ Interactive docs at http://127.0.0.1:8000/docs
 """
 from fastapi import FastAPI
 
+from api.agent_router import router as agent_router
 from api.ingestion_routes import router as ingestion_router
 from api.qa_router import router as qa_router
 from api.retriever_router import router as retriever_router
@@ -22,6 +23,7 @@ app = FastAPI(
 app.include_router(ingestion_router)
 app.include_router(qa_router)
 app.include_router(retriever_router)
+app.include_router(agent_router)
 
 @app.get("/health")
 def health_check():
