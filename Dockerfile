@@ -10,6 +10,11 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 WORKDIR /app
 
 COPY requirements.txt .
+# torch defaults to the CUDA/GPU build on Linux; install the CPU-only build
+# first (everything here runs device="cpu" explicitly) so the rest of
+# requirements.txt's install picks up an already-satisfied torch instead of
+# pulling ~1GB+ of unused NVIDIA CUDA libraries.
+RUN pip install --no-cache-dir torch --index-url https://download.pytorch.org/whl/cpu
 RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
