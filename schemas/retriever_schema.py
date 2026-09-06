@@ -22,5 +22,6 @@ class RetrieverRequest(BaseModel):
 
 
 class RetrieverResponse(BaseModel):
+    question: str
     evidence: list[Evidence]
     count: int

@@ -22,4 +22,4 @@ def search(request: RetrieverRequest) -> RetrieverResponse:
     except Exception as exc:
         raise HTTPException(status_code=500, detail=f"Retrieval failed: {exc}") from exc
 
-    return RetrieverResponse(evidence=evidence, count=len(evidence))
+    return RetrieverResponse(question=request.question, evidence=evidence, count=len(evidence))

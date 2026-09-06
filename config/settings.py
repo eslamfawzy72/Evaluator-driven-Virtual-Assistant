@@ -26,4 +26,12 @@ class Settings:
     LLM_TEMPERATURE: float = float(os.getenv("LLM_TEMPERATURE", "0.2"))
     HF_TOKEN: str = os.getenv("HF_TOKEN", "")
 
+    # LangSmith monitoring -- optional. Tracing only actually activates once
+    # a real LANGCHAIN_API_KEY is set; with no key, LangChain silently skips
+    # tracing rather than failing, so this is safe to leave unset.
+    langsmith_tracing: bool = os.getenv("LANGCHAIN_TRACING_V2", "false").lower() == "true"
+    langsmith_api_key: str = os.getenv("LANGCHAIN_API_KEY", "")
+    langsmith_project: str = os.getenv("LANGCHAIN_PROJECT", "evaluator-generator-platform")
+    langsmith_endpoint: str = os.getenv("LANGCHAIN_ENDPOINT", "https://api.smith.langchain.com")
+
 settings = Settings()

@@ -28,8 +28,9 @@ def _get_model() -> WhisperModel:
     return _model
 
 
-def load_audio(file_path: str) -> List[Document]:
-    """Transcribe a WAV file to text and return it as a standardized Document.
+def transcribe_audio(file_path: str) -> str:
+    """Transcribe a WAV file to text. Shared by load_audio() (ingestion)
+    and the /voice/ask endpoint (voice query) -- same model, same logic.
 
     Raises:
         FileNotFoundError: if the file does not exist.
@@ -49,12 +50,17 @@ def load_audio(file_path: str) -> List[Document]:
     if not transcript:
         raise ValueError(f"Transcription produced no text (silent/unclear audio): {file_path}")
 
-    filename = os.path.basename(file_path)
-    logger.info("Transcribed WAV: %s (%d chars)", filename, len(transcript))
+    logger.info("Transcribed WAV: %s (%d chars)", os.path.basename(file_path), len(transcript))
+    return transcript
 
+
+def load_audio(file_path: str) -> List[Document]:
+    """Transcribe a WAV file and return it as a standardized Document for
+    the ingestion pipeline (adds the transcript to the knowledge base)."""
+    transcript = transcribe_audio(file_path)
     return [
         Document(
             page_content=transcript,
-            metadata={"source": filename, "type": "audio"},
+            metadata={"source": os.path.basename(file_path), "type": "audio"},
         )
     ]

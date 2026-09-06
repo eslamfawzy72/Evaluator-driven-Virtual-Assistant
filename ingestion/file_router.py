@@ -17,6 +17,9 @@ from ingestion.url_loader import load_url
 from ingestion.wikipedia_loader import load_wikipedia
 from ingestion.ppt_loader import load_ppt
 from ingestion.audio_loader import load_audio
+from ingestion.image_loader import load_image
+
+IMAGE_EXTENSIONS = {".png", ".jpg", ".jpeg", ".bmp", ".tiff", ".webp"}
 
 SUPPORTED_FILE_TYPES = {
     ".txt": load_txt,
@@ -28,6 +31,7 @@ SUPPORTED_FILE_TYPES = {
     ".pptx": load_ppt,
     ".wav": load_audio,
 }
+SUPPORTED_FILE_TYPES.update({ext: load_image for ext in IMAGE_EXTENSIONS})
 # Every extension in LANGUAGE_BY_EXTENSION (.py, .js, .java, ...) routes to load_code.
 SUPPORTED_FILE_TYPES.update({ext: load_code for ext in LANGUAGE_BY_EXTENSION})
 
